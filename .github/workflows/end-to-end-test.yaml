@@ -1,0 +1,32 @@
+name: End to end test
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create k8s kind cluster
+        uses: helm/kind-action@v1.3.0
+        with:
+          config: kind-config.yaml
+          wait: 3m
+      - name: Build image
+        run: docker build -t simple-app:snapshot
+      - name: Upload image
+        run: kind load docker-image simple-app:snapshot
+      - name: Deploy stuff
+        run: |
+          kubectl apply -f deployment.yaml
+      - name: Wait until ready
+        run: |
+          while ! curl -f localhost:7180
+          do
+            sleep 5
+            echo "wait 5s"
+          done
+        timeout-minutes: 1
+      - name: Call URL
+        run: curl -f localhost:7180
