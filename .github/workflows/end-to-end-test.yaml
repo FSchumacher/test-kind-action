@@ -17,10 +17,20 @@ jobs:
         with:
           config: ./kind-config.yaml
           wait: 3m
+      - name: Setup ingress controller
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s
       - name: Build image
         run: docker build -t simple-app:snapshot ./simple-image
       - name: Upload image
-        run: kind load docker-image simple-app:snapshot
+        run: |
+          kind get clusters
+          kind get nodes
+          kind load docker-image simple-app:snapshot
       - name: Deploy stuff
         run: |
           kubectl apply -f deployment.yaml
