@@ -34,11 +34,11 @@ jobs:
           kubectl apply -f deployment.yaml
       - name: Wait until ready
         run: |
-          while ! curl -f localhost:7180
+          while ! curl -f localhost:80
           do
             sleep 5
             echo "wait 5s"
           done
         timeout-minutes: 1
       - name: Call URL
-        run: curl -f localhost:7180
+        run: curl -f localhost:80
