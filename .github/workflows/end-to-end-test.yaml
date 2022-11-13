@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: look into env
+        uses: ./
         run: echo $PWD; find .
       - name: Create k8s kind cluster
         uses: helm/kind-action@v1.3.0
